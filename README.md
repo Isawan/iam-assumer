@@ -20,7 +20,7 @@ Wrapper for long running commands that need to perform `AssumeRole` to an IAM ro
 Like so:
 
 ```
-.iam-assumer run  --role-arn arn:aws:iam::128753716591:role/test --role-session-name test -- aws sts get-caller-identity
+./iam-assumer run  --role-arn arn:aws:iam::128753716591:role/test --role-session-name test -- aws sts get-caller-identity
 {
     "UserId": "AROAR36SRZVX5VRHLBHAU:test",
     "Account": "128753716591",
