@@ -27,3 +27,10 @@ Like so:
     "Arn": "arn:aws:sts::128753716591:assumed-role/test/test"
 }
 ```
+
+## How does it work?
+
+It spins up a lightweight embeded HTTP server implementing the [container credential provider](https://docs.aws.amazon.com/sdkref/latest/guide/feature-container-credentials.html).
+The URI is passed to the command as an environment variable.
+On fetching a token from the embedded webserver, an AssumeRole call is made to AWS and the returned credentials as passed to the application.
+Since the container credential provider implements refreshing, we're able to use this to refresh the assume role credentials.
