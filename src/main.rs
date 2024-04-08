@@ -22,6 +22,7 @@ async fn main() -> Result<(), ()> {
 
     let mut sigterm = tokio::signal::unix::signal(SignalKind::terminate()).unwrap();
     let mut sigint = tokio::signal::unix::signal(SignalKind::interrupt()).unwrap();
+    let mut sigquit = tokio::signal::unix::signal(SignalKind::quit()).unwrap();
     let (signal_tx, signal_rx) = mpsc::channel(1);
     let (startup_tx, startup_rx) = oneshot::channel();
     let handler = task::spawn(run(args, signal_rx, startup_tx));
@@ -31,6 +32,7 @@ async fn main() -> Result<(), ()> {
             select! {
                 _ = sigterm.recv() => {tracing::info!("Received SIGTERM"); signal_tx.send(SIGTERM).await.unwrap();},
                 _ = sigint.recv() => {tracing::info!("Received SIGINT"); signal_tx.send(SIGTERM).await.unwrap();},
+                _ = sigquit.recv() => {tracing::info!("Received SIGQUIT"); signal_tx.send(SIGTERM).await.unwrap();},
             }
         }
     });

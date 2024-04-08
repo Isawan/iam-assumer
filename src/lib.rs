@@ -172,9 +172,9 @@ pub(crate) async fn spawn(
                 break;
             },
             signal = signals.recv() => match signal {
-                Some(s @ (Signal::SIGTERM | Signal::SIGINT)) => {
+                Some(s ) => {
                     if let Some(pid) = process.id() {
-                        tracing::debug!("Received SIGTERM or SIGINT, killing child process");
+                        tracing::debug!("Received signal, killing child process");
                         if let Err(e) = nix::sys::signal::kill(Pid::from_raw(pid as pid_t), s){
                             error!(error = ?e, "Failed to kill child process");
                         }
