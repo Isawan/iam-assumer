@@ -22,6 +22,7 @@ use tower::Service;
 use tracing::error;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct StartUpNotify<T> {
     msg: T,
 }
@@ -69,17 +70,7 @@ pub async fn run(
 }
 
 // refactoring setup code in run_server
-pub async fn setup_server(config: &RunArgs) -> Result<(aws_sdk_sts::Client), ()> {
-    // Get system certificates
-    let certificates = match rustls_native_certs::load_native_certs() {
-        Ok(certs) => certs,
-        Err(error) => {
-            error!(reason = %error, "Could not load system certificates, exiting.");
-            return Err(());
-        }
-    };
-
-    // path style required for minio to work
+pub async fn setup_server(config: &RunArgs) -> Result<aws_sdk_sts::Client, ()> {
     // Set up AWS SDK
     let aws_config = aws_config::defaults(BehaviorVersion::v2023_11_09())
         .load()
@@ -179,9 +170,6 @@ pub(crate) async fn spawn(
                             error!(error = ?e, "Failed to kill child process");
                         }
                     }
-                }
-                Some(signal) => {
-                    error!(signal = ?signal, "Received unexpected signal");
                 }
                 None => {
                     panic!("Signal channel closed unexpectedly");

@@ -1,14 +1,13 @@
-use aws_config::{credential_process, default_provider::credentials};
 use aws_sdk_sts::operation::assume_role::AssumeRoleOutput;
 use aws_smithy_types_convert::date_time::DateTimeExt;
 use axum::{
-    async_trait, debug_handler,
+    async_trait, 
     extract::{FromRequestParts, State},
     http::{request::Parts, HeaderName, HeaderValue},
     response::IntoResponse,
     Json,
 };
-use chrono::{DateTime, TimeZone, Utc};
+use chrono::{DateTime,  Utc};
 use hyper::StatusCode;
 use serde::Serialize;
 

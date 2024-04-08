@@ -1,7 +1,6 @@
 use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 
 use clap::Parser;
-use url::Url;
 
 const DEFAULT_SOCKET: SocketAddr = SocketAddr::new(IpAddr::V6(Ipv6Addr::LOCALHOST), 0);
 

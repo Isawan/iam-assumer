@@ -1,4 +1,3 @@
-use std::sync::mpsc::channel;
 
 use clap::Parser;
 use iam_assumer::{config::Args, run};
