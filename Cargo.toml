@@ -34,4 +34,3 @@ tower = "0.4.13"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter", "serde"] }
 url = "2.5.0"
-ring = "0.17.8"
