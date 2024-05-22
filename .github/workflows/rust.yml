@@ -24,7 +24,7 @@ jobs:
       - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2
 
       - name: Run unit tests
-        run: cargo test
+        run: cargo test --target ${{ matrix.arch }}-unknown-linux-musl
 
   build-release-linux:
     runs-on: ubuntu-latest
