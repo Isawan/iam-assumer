@@ -5,4 +5,7 @@ target = "x86_64-unknown-linux-musl"
 linker = "x86_64-linux-musl-gcc"
 
 [target.aarch64-unknown-linux-musl]
-linker = "aarch64-linux-musl-gcc"
+linker = "clang"
+ar = "llvm-ar"
+rustflags = ["-Clink-self-contained=yes", "-Clinker=rust-lld"]
+cc = "clang"

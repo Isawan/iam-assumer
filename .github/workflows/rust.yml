@@ -11,14 +11,29 @@ env:
   SQLX_OFFLINE: "true"
 
 jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
+  unit-tests-darwin:
+    runs-on: macos-latest
     strategy:
       matrix:
         arch: [x86_64, aarch64]
     steps:
       - name: Ensure musl installed
-        run: sudo apt-get install -y musl-dev musl-tools musl gcc-aarch64-linux-gnu && rustup target add ${{ matrix.arch }}-unknown-linux-musl
+        run: rustup target add ${{ matrix.arch }}-apple-darwin
+
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2
+
+      - name: Run unit tests
+        run: cargo test --target ${{ matrix.arch }}-apple-darwin
+
+  unit-tests-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [x86_64, aarch64]
+    steps:
+      - name: Ensure toolchain installed
+        run: sudo apt-get install -y musl-dev musl-tools musl gcc-aarch64-linux-gnu llvm clang && rustup target add ${{ matrix.arch }}-unknown-linux-musl
 
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2
@@ -26,41 +41,43 @@ jobs:
       - name: Run unit tests
         run: cargo test --target ${{ matrix.arch }}-unknown-linux-musl
 
-  build-release-linux:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [x86_64, aarch64]
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Ensure musl installed
-        run: sudo apt-get install -y musl-dev musl-tools musl && rustup target add ${{ matrix.arch }}-unknown-linux-musl
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
-      - name: Build final release binary
-        run: cargo build --release --verbose
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
-        with:
-          name: iam-assumer
-          path: target/${{ matrix.arch }}-unknown-linux-musl/release/iam-assumer
-
   build-release-darwin:
     runs-on: macos-latest
     strategy:
       matrix:
         arch: [x86_64, aarch64]
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     steps:
-      - name: Ensure musl installed
+      - name: Ensure toolchain installed
         run: rustup target add ${{ matrix.arch }}-apple-darwin
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - name: Build final release binary
-        run: cargo build --release --verbose
+        run: cargo build --release --target ${{ matrix.arch }}-apple-darwin --verbose
 
       - name: Upload artifact
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: iam-assumer
+          name: iam-assumer-darwin-${{ matrix.arch }}
           path: target/${{ matrix.arch }}-apple-darwin/release/iam-assumer 
+
+  build-release-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [x86_64, aarch64]
+    # if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Ensure musl installed
+        run: sudo apt-get install -y musl-dev musl-tools musl gcc-aarch64-linux-gnu llvm clang && rustup target add ${{ matrix.arch }}-unknown-linux-musl
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - name: Build final release binary
+        run: cargo build --release --target ${{ matrix.arch }}-unknown-linux-musl --verbose 
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
+        with:
+          name: iam-assumer-linux-${{ matrix.arch }}
+          path: target/${{ matrix.arch }}-unknown-linux-musl/release/iam-assumer
+
+
       
