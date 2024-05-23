@@ -93,8 +93,6 @@ jobs:
             echo "TARGET_AR=aarch64-linux-gnu-ar" >> $GITHUB_ENV
           fi
           
-      - name: Print env
-        run: env
 
       - name: Build final release binary
         run: cargo build --release --target ${{ matrix.arch }}-unknown-linux-musl --verbose 
