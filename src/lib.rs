@@ -7,7 +7,9 @@ use std::net::SocketAddr;
 use crate::app::AppState;
 use aws_config::BehaviorVersion;
 use axum::Router;
-use config::{Args, RunArgs};
+use clap::CommandFactory;
+use clap_complete::{generate };
+use config::{Args, GenerateCompletionArgs, RunArgs};
 use hyper::{body::Incoming, Request};
 use hyper_util::rt::{TokioExecutor, TokioIo};
 use nix::{libc::pid_t, sys::signal::Signal, unistd::Pid};
@@ -66,6 +68,7 @@ pub async fn run(
 ) -> Result<(), ()> {
     match config {
         Args::Run(args) => run_cmd(args, signals, startup).await,
+        Args::GenerateCompletion(args) => run_generate_completion(args),
     }
 }
 
@@ -82,6 +85,13 @@ pub async fn setup_server(config: &RunArgs) -> Result<aws_sdk_sts::Client, ()> {
     let sts = aws_sdk_sts::Client::from_conf(sts_config.build());
 
     Ok(sts)
+}
+
+pub fn run_generate_completion(config: GenerateCompletionArgs) -> Result<(), ()> {
+    let shell = config.shell;
+    let mut app = Args::command();
+    generate(shell, &mut app, "iam-assumer", &mut std::io::stdout());
+    Ok(())
 }
 
 pub(crate) async fn run_cmd(
