@@ -28,15 +28,17 @@ jobs:
 
   unit-tests-linux:
     runs-on: ubuntu-latest
+    container:
+      image: rust:1.78-bookworm
     strategy:
       matrix:
         arch: [x86_64, aarch64]
     steps:
       - name: Ensure toolchain installed
         run: |
-          sudo dpkg --add-architecture arm64 \
-          && sudo apt-get update \
-          && sudo apt-get install -y musl-dev:arm64 musl-dev musl-tools musl llvm clang qemu-user \
+          dpkg --add-architecture arm64 \
+          && apt-get update \
+          && apt-get install -y musl-dev:arm64 musl-dev musl-tools musl llvm clang qemu-user \
           && rustup target add ${{ matrix.arch }}-unknown-linux-musl
 
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
@@ -68,6 +70,8 @@ jobs:
 
   build-release-linux:
     runs-on: ubuntu-latest
+    container:
+      image: rust:1.78-bookworm
     strategy:
       matrix:
         arch: [x86_64, aarch64]
@@ -76,9 +80,9 @@ jobs:
     steps:
       - name: Ensure toolchain installed
         run: |
-          sudo dpkg --add-architecture arm64 \
-          && sudo apt-get update \
-          && sudo apt-get install -y musl-dev:arm64 musl-dev musl-tools musl llvm clang qemu-user \
+          dpkg --add-architecture arm64 \
+          && apt-get update \
+          && apt-get install -y musl-dev:arm64 musl-dev musl-tools musl llvm clang qemu-user \
           && rustup target add ${{ matrix.arch }}-unknown-linux-musl
 
 
