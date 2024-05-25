@@ -28,24 +28,21 @@ jobs:
 
   unit-tests-linux:
     runs-on: ubuntu-latest
+    container:
+      image: rust:1.78-bookworm
     strategy:
       matrix:
         arch: [x86_64, aarch64]
     steps:
       - name: Ensure toolchain installed
-        run: sudo apt-get install -y musl-dev musl-tools musl gcc-aarch64-linux-gnu llvm clang qemu-user && rustup target add ${{ matrix.arch }}-unknown-linux-musl
+        run: |
+          dpkg --add-architecture arm64 \
+          && apt-get update \
+          && apt-get install -y musl-dev:arm64 musl-dev musl-tools musl llvm clang qemu-user \
+          && rustup target add ${{ matrix.arch }}-unknown-linux-musl
 
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2
-
-      - name: Set up environment variables
-        run: |
-          if [ "${{ matrix.arch }}" == "aarch64" ]; then
-            echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS=-Clink-self-contained=yes -Clinker=rust-lld" >> $GITHUB_ENV
-            echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUNNER=qemu-aarch64 -L /usr/aarch64-linux-gnu" >> $GITHUB_ENV
-            echo "TARGET_CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-            echo "TARGET_AR=aarch64-linux-gnu-ar" >> $GITHUB_ENV        
-          fi
 
       - name: Run unit tests
         run: cargo test --target ${{ matrix.arch }}-unknown-linux-musl
@@ -73,26 +70,23 @@ jobs:
 
   build-release-linux:
     runs-on: ubuntu-latest
+    container:
+      image: rust:1.78-bookworm
     strategy:
       matrix:
         arch: [x86_64, aarch64]
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Ensure musl installed
-        run: sudo apt-get install -y musl-dev musl-tools musl gcc-aarch64-linux-gnu llvm clang qemu-user && rustup target add ${{ matrix.arch }}-unknown-linux-musl
+      - name: Ensure toolchain installed
+        run: |
+          dpkg --add-architecture arm64 \
+          && apt-get update \
+          && apt-get install -y musl-dev:arm64 musl-dev musl-tools musl llvm clang qemu-user \
+          && rustup target add ${{ matrix.arch }}-unknown-linux-musl
+
 
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
-
-      - name: Set up environment variables
-        run: |
-          if [ "${{ matrix.arch }}" == "aarch64" ]; then
-            echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS=-Clink-self-contained=yes -Clinker=rust-lld" >> $GITHUB_ENV
-            echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUNNER=qemu-aarch64 -L /usr/aarch64-linux-gnu" >> $GITHUB_ENV
-            echo "TARGET_CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-            echo "TARGET_AR=aarch64-linux-gnu-ar" >> $GITHUB_ENV
-          fi
-          
 
       - name: Build final release binary
         run: cargo build --release --target ${{ matrix.arch }}-unknown-linux-musl --verbose 
