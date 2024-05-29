@@ -8,7 +8,7 @@ use crate::app::AppState;
 use aws_config::BehaviorVersion;
 use axum::Router;
 use clap::CommandFactory;
-use clap_complete::{generate };
+use clap_complete::generate;
 use config::{Args, GenerateCompletionArgs, RunArgs};
 use hyper::{body::Incoming, Request};
 use hyper_util::rt::{TokioExecutor, TokioIo};
@@ -75,7 +75,7 @@ pub async fn run(
 // refactoring setup code in run_server
 pub async fn setup_server(config: &RunArgs) -> Result<aws_sdk_sts::Client, ()> {
     // Set up AWS SDK
-    let aws_config = aws_config::defaults(BehaviorVersion::v2023_11_09())
+    let aws_config = aws_config::defaults(BehaviorVersion::v2024_03_28())
         .load()
         .await;
     let mut sts_config = aws_sdk_sts::config::Builder::from(&aws_config);
