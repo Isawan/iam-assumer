@@ -1,7 +1,6 @@
 use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 
 use clap::Parser;
-use clap_complete::Shell;
 
 const DEFAULT_SOCKET: SocketAddr = SocketAddr::new(IpAddr::V6(Ipv6Addr::LOCALHOST), 0);
 
@@ -42,9 +41,27 @@ pub struct RunArgs {
     pub(crate) args: Vec<String>,
 }
 
-
 #[derive(clap::Args, Debug, Clone)]
 pub struct GenerateCompletionArgs {
     #[arg(long, env = "ASSUMER_SHELL")]
     pub(crate) shell: Shell,
+}
+
+#[derive(clap::ValueEnum, Debug, Clone)]
+pub enum Shell {
+    Bash,
+    Fish,
+    Zsh,
+    Elvish,
+}
+
+impl From<Shell> for clap_complete::Shell {
+    fn from(shell: Shell) -> Self {
+        match shell {
+            Shell::Bash => clap_complete::Shell::Bash,
+            Shell::Fish => clap_complete::Shell::Fish,
+            Shell::Zsh => clap_complete::Shell::Zsh,
+            Shell::Elvish => clap_complete::Shell::Elvish,
+        }
+    }
 }
