@@ -34,3 +34,7 @@ It spins up a lightweight embeded HTTP server implementing the [container creden
 The URI is passed to the command as an environment variable.
 On fetching a token from the embedded webserver, an AssumeRole call is made to AWS and the returned credentials as passed to the application.
 Since the container credential provider implements refreshing, we're able to use this to refresh the assume role credentials.
+
+# Logging?
+
+You can set the `RUST_LOG` environment variable to one of `error`, `warn`, `info`, `debug`, `trace` for different verbosity levels.
