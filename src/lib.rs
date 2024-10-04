@@ -31,33 +31,40 @@ pub struct StartUpNotify<T> {
 
 async fn serve(listener: TcpListener, app: Router) {
     loop {
-        let (socket, _remote_addr) = listener.accept().await.unwrap();
-
-        let tower_service = app.clone();
-
-        // Spawn a task to handle the connection. That way we can multiple connections
-        // concurrently.
-        tokio::spawn(async move {
-            let socket = TokioIo::new(socket);
-
-            // Hyper also has its own `Service` trait and doesn't use tower. We can use
-            // `hyper::service::service_fn` to create a hyper `Service` that calls our app through
-            // `tower::Service::call`.
-            let hyper_service = hyper::service::service_fn(move |request: Request<Incoming>| {
-                // We have to clone `tower_service` because hyper's `Service` uses `&self` whereas
-                // tower's `Service` requires `&mut self`.
-                //
-                // We don't need to call `poll_ready` since `Router` is always ready.
-                tower_service.clone().call(request)
-            });
-
-            if let Err(err) = hyper_util::server::conn::auto::Builder::new(TokioExecutor::new())
-                .serve_connection(socket, hyper_service)
-                .await
-            {
-                tracing::warn!("failed to serve connection: {err:#}");
+        match listener.accept().await {
+            Err(err) => {
+                tracing::warn!("Failed to accept connection: {err:#}");
             }
-        });
+            Ok((socket, _remote_addr)) => {
+                let tower_service = app.clone();
+
+                // Spawn a task to handle the connection. That way we can multiple connections
+                // concurrently.
+                tokio::spawn(async move {
+                    let socket = TokioIo::new(socket);
+
+                    // Hyper also has its own `Service` trait and doesn't use tower. We can use
+                    // `hyper::service::service_fn` to create a hyper `Service` that calls our app through
+                    // `tower::Service::call`.
+                    let hyper_service =
+                        hyper::service::service_fn(move |request: Request<Incoming>| {
+                            // We have to clone `tower_service` because hyper's `Service` uses `&self` whereas
+                            // tower's `Service` requires `&mut self`.
+                            //
+                            // We don't need to call `poll_ready` since `Router` is always ready.
+                            tower_service.clone().call(request)
+                        });
+
+                    if let Err(err) =
+                        hyper_util::server::conn::auto::Builder::new(TokioExecutor::new())
+                            .serve_connection(socket, hyper_service)
+                            .await
+                    {
+                        tracing::warn!("failed to serve connection: {err:#}");
+                    }
+                });
+            }
+        }
     }
 }
 
@@ -99,11 +106,15 @@ pub(crate) async fn run_cmd(
     signals: Receiver<Signal>,
     startup: Sender<StartUpNotify<SocketAddr>>,
 ) -> Result<(), ()> {
-    let sts = setup_server(&config).await.unwrap();
+    let sts = setup_server(&config)
+        .await
+        .expect("Failed to set up container credentials responder");
 
     let bind_addr = config.http_listen;
-    let listener = TcpListener::bind(&bind_addr).await.unwrap();
-    let local_addr = listener.local_addr().unwrap();
+    let listener = TcpListener::bind(&bind_addr)
+        .await
+        .expect("Could not bind to address");
+    let local_addr = listener.local_addr().expect("Failed to bind to interface");
 
     // random base64 encoded string
     let auth_token: String = config.auth_token.clone().unwrap_or_else(|| {

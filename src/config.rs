@@ -42,7 +42,6 @@ pub struct RunArgs {
     pub(crate) args: Vec<String>,
 }
 
-
 #[derive(clap::Args, Debug, Clone)]
 pub struct GenerateCompletionArgs {
     #[arg(long, env = "ASSUMER_SHELL")]

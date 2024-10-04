@@ -1,4 +1,3 @@
-
 use clap::Parser;
 use iam_assumer::{config::Args, run};
 use nix::sys::signal::Signal::SIGTERM;
@@ -19,9 +18,12 @@ async fn main() -> Result<(), ()> {
         .compact()
         .init();
 
-    let mut sigterm = tokio::signal::unix::signal(SignalKind::terminate()).unwrap();
-    let mut sigint = tokio::signal::unix::signal(SignalKind::interrupt()).unwrap();
-    let mut sigquit = tokio::signal::unix::signal(SignalKind::quit()).unwrap();
+    let mut sigterm = tokio::signal::unix::signal(SignalKind::terminate())
+        .expect("Failed to setup SIGTERM handler");
+    let mut sigint = tokio::signal::unix::signal(SignalKind::interrupt())
+        .expect("Failed to setup SIGINT handler");
+    let mut sigquit =
+        tokio::signal::unix::signal(SignalKind::quit()).expect("Failed to setup SIGQUIT handler");
     let (signal_tx, signal_rx) = mpsc::channel(1);
     let (startup_tx, startup_rx) = oneshot::channel();
     let handler = task::spawn(run(args, signal_rx, startup_tx));
@@ -29,9 +31,9 @@ async fn main() -> Result<(), ()> {
     let _handle_signal = task::spawn(async move {
         loop {
             select! {
-                _ = sigterm.recv() => {tracing::info!("Received SIGTERM"); signal_tx.send(SIGTERM).await.unwrap();},
-                _ = sigint.recv() => {tracing::info!("Received SIGINT"); signal_tx.send(SIGTERM).await.unwrap();},
-                _ = sigquit.recv() => {tracing::info!("Received SIGQUIT"); signal_tx.send(SIGTERM).await.unwrap();},
+                _ = sigterm.recv() => {tracing::info!("Received SIGTERM"); signal_tx.send(SIGTERM).await.expect("Failed to notify SIGTERM");},
+                _ = sigint.recv() => {tracing::info!("Received SIGINT"); signal_tx.send(SIGTERM).await.expect("Failed to notify SIGTERM");},
+                _ = sigquit.recv() => {tracing::info!("Received SIGQUIT"); signal_tx.send(SIGTERM).await.expect("Failed to notify SIGTERM");},
             }
         }
     });
