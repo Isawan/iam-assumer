@@ -63,7 +63,7 @@ jobs:
         run: cargo build --release --target ${{ matrix.arch }}-apple-darwin --verbose
 
       - name: Upload artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
         with:
           name: iam-assumer-darwin-${{ matrix.arch }}
           path: target/${{ matrix.arch }}-apple-darwin/release/iam-assumer 
@@ -92,7 +92,7 @@ jobs:
         run: cargo build --release --target ${{ matrix.arch }}-unknown-linux-musl --verbose 
 
       - name: Upload artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
         with:
           name: iam-assumer-linux-${{ matrix.arch }}
           path: target/${{ matrix.arch }}-unknown-linux-musl/release/iam-assumer
