@@ -20,7 +20,7 @@ jobs:
       - name: Ensure musl installed
         run: rustup target add ${{ matrix.arch }}-apple-darwin
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2
           
       - name: Run unit tests
@@ -41,7 +41,7 @@ jobs:
           && apt-get install -y musl-dev:arm64 musl-dev musl-tools musl llvm clang qemu-user \
           && rustup target add ${{ matrix.arch }}-unknown-linux-musl
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2
 
       - name: Run unit tests
@@ -57,7 +57,7 @@ jobs:
       - name: Ensure toolchain installed
         run: rustup target add ${{ matrix.arch }}-apple-darwin
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Build final release binary
         run: cargo build --release --target ${{ matrix.arch }}-apple-darwin --verbose
@@ -86,7 +86,7 @@ jobs:
           && rustup target add ${{ matrix.arch }}-unknown-linux-musl
 
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Build final release binary
         run: cargo build --release --target ${{ matrix.arch }}-unknown-linux-musl --verbose 
